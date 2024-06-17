@@ -1,5 +1,5 @@
 {
-    "name": "knit-tutorial",
+    "name": "Yellowstone",
     "tree": {
         "$className": "DataModel",
 
@@ -8,7 +8,7 @@
             
             "Source": {
                 "$path": "src/ReplicatedStorage"
-            }
+            },
         },
 
         "ServerScriptService": {
@@ -16,9 +16,6 @@
             
             "Source": {
                 "$path": "src/ServerScriptService"
-            },
-            "Packages": {
-                "$path": "Packages"
             }
         },
 
