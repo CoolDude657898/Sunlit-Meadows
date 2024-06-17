@@ -8,7 +8,7 @@
             
             "Source": {
                 "$path": "src/ReplicatedStorage"
-            },
+            }
         },
 
         "ServerScriptService": {
