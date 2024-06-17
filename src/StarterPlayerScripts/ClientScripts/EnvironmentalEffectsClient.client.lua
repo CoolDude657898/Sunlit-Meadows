@@ -1,5 +1,6 @@
 -- Services
 local players = game:GetService("Players")
+local lighting = game:GetService("Lighting")
 local soundService = game:GetService("SoundService")
 local tweenService = game:GetService("TweenService")
 local runService = game:GetService("RunService")
@@ -7,6 +8,8 @@ local runService = game:GetService("RunService")
 -- Variables
 local player = players.LocalPlayer
 local windEnabled = false
+local underwaterEnabled = false
+local camera = game.Workspace.CurrentCamera
 
 -- Waits for character to add
 player.CharacterAdded:Wait()
@@ -25,16 +28,49 @@ local function stopWindEffect()
     volumeTween:Play()
 end
 
--- Function to detect player's position
+-- Function to get player's position
 local function getPlayerPosition(playerToGetPositionOf)
     local playerPosition = playerToGetPositionOf.Character.HumanoidRootPart.Position
 
     return playerPosition
 end
 
--- Constantly check whether to play wind based on player's y position value
+-- Function to start underwater effect
+local function startUnderwaterEffect()
+    underwaterEnabled = true
+    game.Lighting.UnderwaterBlur.Size = 13
+    soundService.SoundEffects.UnderwaterAmbience.Playing = true
+end
+
+-- Function to stop underwater effect
+local function stopUnderwaterEffect()
+    underwaterEnabled = false
+    game.Lighting.UnderwaterBlur.Size = 0
+    soundService.SoundEffects.UnderwaterAmbience:Pause()
+end
+
+-- Function to get camera's position
+local function checkIfCameraUnderwater()
+    local cameraPosition = game.Workspace.Terrain:WorldToCell(camera.CFrame.Position)
+    local isInWater = game.Workspace.Terrain:GetWaterCell(cameraPosition.X, cameraPosition.Y, cameraPosition.Z)
+    
+    if isInWater then
+        return true
+    else
+        return false
+    end
+end
+
+-- Constantly check whether to play environmental effects based on player and camera positions
 runService.Heartbeat:Connect(function()
     local playerPosition = getPlayerPosition(player)
+    local isCameraInWater = checkIfCameraUnderwater()
+
+    if isCameraInWater == true and underwaterEnabled == false then
+        startUnderwaterEffect()
+    elseif isCameraInWater == false and underwaterEnabled == true then
+        stopUnderwaterEffect()
+    end
 
     if playerPosition.Y > 1450 and windEnabled == false then
         startWindEffect()
