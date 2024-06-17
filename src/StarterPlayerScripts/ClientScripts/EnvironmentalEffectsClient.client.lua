@@ -72,9 +72,9 @@ runService.Heartbeat:Connect(function()
         stopUnderwaterEffect()
     end
 
-    if playerPosition.Y > 1450 and windEnabled == false then
+    if playerPosition.Y > 500 and windEnabled == false then
         startWindEffect()
-    elseif playerPosition.Y < 1450 and windEnabled == true then
+    elseif playerPosition.Y < 500 and windEnabled == true then
         stopWindEffect()
     end
 end)
