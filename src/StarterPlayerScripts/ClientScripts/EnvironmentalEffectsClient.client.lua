@@ -12,7 +12,9 @@ local underwaterEnabled = false
 local camera = game.Workspace.CurrentCamera
 
 -- Waits for character to add
-player.CharacterAdded:Wait()
+if not player.Character then
+    player.CharacterAdded:Wait()
+end
 
 -- Wind Effects Function
 local function startWindEffect()

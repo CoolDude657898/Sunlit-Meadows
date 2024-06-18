@@ -10,7 +10,9 @@ local playerValues = player:WaitForChild("PlayerValues")
 local isUnderwater = false
 
 -- Waits for character to add
-player.CharacterAdded:Wait()
+if not player.Character then
+    player.CharacterAdded:Wait()
+end
 
 -- Create color sequence for oxygen
 local colorSequence = ColorSequence.new{
