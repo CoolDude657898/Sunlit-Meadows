@@ -38,14 +38,14 @@ end
 -- Function to start underwater effect
 local function startUnderwaterEffect()
     underwaterEnabled = true
-    game.Lighting.UnderwaterBlur.Size = 13
+    lighting.UnderwaterBlur.Size = 13
     soundService.SoundEffects.UnderwaterAmbience.Playing = true
 end
 
 -- Function to stop underwater effect
 local function stopUnderwaterEffect()
     underwaterEnabled = false
-    game.Lighting.UnderwaterBlur.Size = 0
+    lighting.UnderwaterBlur.Size = 0
     soundService.SoundEffects.UnderwaterAmbience:Pause()
 end
 
