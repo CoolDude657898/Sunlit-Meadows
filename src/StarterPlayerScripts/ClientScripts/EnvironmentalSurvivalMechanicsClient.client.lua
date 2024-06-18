@@ -14,15 +14,29 @@ if not player.Character then
     player.CharacterAdded:Wait()
 end
 
--- Create color sequence for oxygen
-local colorSequence = ColorSequence.new{
+-- Get player health
+local function getPlayerHealth(playerToGetHealthOf)
+    local playerHealth = playerToGetHealthOf.Character.Humanoid.Health
+    return playerHealth
+end
+
+-- Create color sequence for oxygen and health bar
+local oxygenColorSequence = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(160,0,0)),
     ColorSequenceKeypoint.new(0.5, Color3.fromRGB(245, 235, 159)),
     ColorSequenceKeypoint.new(1, Color3.fromRGB(171, 245, 233)),
 }
 
+-- Create color sequence for oxygen and health bar
+local healthColorSequence = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(160,0,0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(218, 167, 59)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(50,170,17)),
+}
+
+
 -- Get point in color sequence
-local function getColorSequencePoint(x)
+local function getColorSequencePoint(x, colorSequence)
     if x == 0 then return colorSequence.Keypoints[1].Value end
     if x == 1 then return colorSequence.Keypoints[#colorSequence.Keypoints].Value end
 
@@ -45,7 +59,7 @@ local function getPlayerHeadPosition(playerToGetPositionOf)
     return playerHeadPosition
 end
 
--- Always check if player head is underwater
+-- Constantly check whether player is underwater
 runService.Heartbeat:Connect(function()
     local playerHeadPositon = game.Workspace.Terrain:WorldToCell(getPlayerHeadPosition(player))
     local isInWater = game.Workspace.Terrain:GetWaterCell(playerHeadPositon.X, playerHeadPositon.Y + 0.5, playerHeadPositon.Z)
@@ -60,11 +74,11 @@ runService.Heartbeat:Connect(function()
         while playerValues.Oxygen.Value < 1000 do
             task.wait()
         end
-        player.PlayerGui.MenuClient.OxygenFrame.Visible = false
+        player.PlayerGui.MenuClient.OxygenFrame.Visible = false 
     end
 end)
 
--- Update oxygen text label
+-- Update oxygen color and text label
 local function updateOxygenGui(value)
     if value >= 10 then
         player.PlayerGui.MenuClient.OxygenFrame.OxygenPercent.Text = "["..value.."%]"
@@ -73,7 +87,7 @@ local function updateOxygenGui(value)
     end
 
     local percent = math.clamp(value/100, 0, 1)
-    local color = getColorSequencePoint(percent)
+    local color = getColorSequencePoint(percent, oxygenColorSequence)
     player.PlayerGui.MenuClient.OxygenFrame.OxygenPercent.TextColor3 = color
     player.PlayerGui.MenuClient.OxygenFrame.OxygenSymbol.TextColor3 = color
     player.PlayerGui.MenuClient.OxygenFrame.NumberSymbol.TextColor3 = color
@@ -82,4 +96,19 @@ end
 -- Update oxygen gui when oxygen value changed
 playerValues.Oxygen:GetPropertyChangedSignal("Value"):Connect(function()
     updateOxygenGui(playerValues.Oxygen.Value/10)
+end)
+
+-- Update health bar color and text label
+local function updateHealthGui(value)
+    local playerHealth = getPlayerHealth(player)
+    player.PlayerGui.MenuClient.HealthBackgroundBar.HealthBar.Size = UDim2.new(playerHealth/100,0,1,0)
+    player.PlayerGui.MenuClient.HealthBackgroundBar.HealthPercent.Text = playerHealth.."/100"
+
+    local percent = math.clamp(value/100, 0, 1)
+    local color = getColorSequencePoint(percent, healthColorSequence)
+    player.PlayerGui.MenuClient.HealthBackgroundBar.HealthBar.BackgroundColor3 = color
+end
+
+player.Character.Humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+    updateHealthGui(player.Character.Humanoid.Health)
 end)
