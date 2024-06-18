@@ -14,7 +14,7 @@ player.CharacterAdded:Wait()
 
 -- Create color sequence for oxygen
 local colorSequence = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(245, 121, 121)),
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(160,0,0)),
     ColorSequenceKeypoint.new(0.5, Color3.fromRGB(245, 235, 159)),
     ColorSequenceKeypoint.new(1, Color3.fromRGB(171, 245, 233)),
 }
