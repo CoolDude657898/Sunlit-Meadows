@@ -102,7 +102,7 @@ end)
 local function updateHealthGui(value)
     local playerHealth = getPlayerHealth(player)
     player.PlayerGui.MenuClient.HealthBackgroundBar.HealthBar.Size = UDim2.new(playerHealth/100,0,1,0)
-    player.PlayerGui.MenuClient.HealthBackgroundBar.HealthPercent.Text = playerHealth.."/100"
+    player.PlayerGui.MenuClient.HealthBackgroundBar.HealthPercent.Text = math.round(playerHealth).."/100"
 
     local percent = math.clamp(value/100, 0, 1)
     local color = getColorSequencePoint(percent, healthColorSequence)
