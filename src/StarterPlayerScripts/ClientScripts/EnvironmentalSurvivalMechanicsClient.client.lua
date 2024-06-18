@@ -12,6 +12,30 @@ local isUnderwater = false
 -- Waits for character to add
 player.CharacterAdded:Wait()
 
+-- Create color sequence for oxygen
+local colorSequence = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(245, 121, 121)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(245, 235, 159)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(171, 245, 233)),
+}
+
+-- Get point in color sequence
+local function getColorSequencePoint(x)
+    if x == 0 then return colorSequence.Keypoints[1].Value end
+    if x == 1 then return colorSequence.Keypoints[#colorSequence.Keypoints].Value end
+
+    for i = 1, #colorSequence.Keypoints - 1 do
+        local current = colorSequence.Keypoints[i]
+        local next = colorSequence.Keypoints[1 + i]
+
+        if x >= current.Time and x < next.Time then
+            local alpha = (x - current.Time) / (next.Time - current.Time)
+
+            return current.Value:Lerp(next.Value, alpha)
+        end
+    end
+end
+
 -- Get player position
 local function getPlayerHeadPosition(playerToGetPositionOf)
     local playerHeadPosition = playerToGetPositionOf.Character.Head.Position
@@ -45,6 +69,12 @@ local function updateOxygenGui(value)
     elseif value < 10 then
         player.PlayerGui.MenuClient.OxygenFrame.OxygenPercent.Text = "[0"..value.."%]"
     end
+
+    local percent = math.clamp(value/100, 0, 1)
+    local color = getColorSequencePoint(percent)
+    player.PlayerGui.MenuClient.OxygenFrame.OxygenPercent.TextColor3 = color
+    player.PlayerGui.MenuClient.OxygenFrame.OxygenSymbol.TextColor3 = color
+    player.PlayerGui.MenuClient.OxygenFrame.NumberSymbol.TextColor3 = color
 end
 
 -- Update oxygen gui when oxygen value changed
