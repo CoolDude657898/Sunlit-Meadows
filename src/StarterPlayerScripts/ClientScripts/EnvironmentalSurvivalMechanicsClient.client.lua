@@ -112,3 +112,9 @@ end
 player.Character:WaitForChild("Humanoid"):GetPropertyChangedSignal("Health"):Connect(function()
     updateHealthGui(player.Character.Humanoid.Health)
 end)
+
+player.CharacterAdded:Connect(function()
+    player.Character:WaitForChild("Humanoid"):GetPropertyChangedSignal("Health"):Connect(function()
+        updateHealthGui(player.Character.Humanoid.Health)
+    end)
+end)
