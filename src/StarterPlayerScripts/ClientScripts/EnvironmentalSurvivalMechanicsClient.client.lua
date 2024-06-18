@@ -46,7 +46,7 @@ end
 -- Always check if player head is underwater
 runService.Heartbeat:Connect(function()
     local playerHeadPositon = game.Workspace.Terrain:WorldToCell(getPlayerHeadPosition(player))
-    local isInWater = game.Workspace.Terrain:GetWaterCell(playerHeadPositon.X, playerHeadPositon.Y + 0.3, playerHeadPositon.Z)
+    local isInWater = game.Workspace.Terrain:GetWaterCell(playerHeadPositon.X, playerHeadPositon.Y + 0.5, playerHeadPositon.Z)
     
     if isInWater and isUnderwater == false then
         isUnderwater = true
