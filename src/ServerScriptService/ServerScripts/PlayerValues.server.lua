@@ -11,6 +11,11 @@ local function createPlayerValues(playerToCreateValuesFor)
     oxygen.Name = "Oxygen"
     oxygen.Parent = playerValues
     oxygen.Value = 1000
+
+    local stamina = Instance.new("IntValue")
+    stamina.Name = "Stamina"
+    stamina.Parent = playerValues
+    stamina.Value = 1000
 end
 
 -- Connect to player added function

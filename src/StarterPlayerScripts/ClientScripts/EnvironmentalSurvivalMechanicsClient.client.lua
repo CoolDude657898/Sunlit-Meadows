@@ -2,12 +2,15 @@
 local players = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local runService = game:GetService("RunService")
+local userInputService = game:GetService("UserInputService")
 
 -- Variables
 local remotes = replicatedStorage.Remotes
 local player = players.LocalPlayer
 local playerValues = player:WaitForChild("PlayerValues")
 local isUnderwater = false
+local sprinting = false
+local crouching = false
 
 -- Waits for character to add
 if not player.Character then
@@ -117,4 +120,69 @@ player.CharacterAdded:Connect(function()
     player.Character:WaitForChild("Humanoid"):GetPropertyChangedSignal("Health"):Connect(function()
         updateHealthGui(player.Character.Humanoid.Health)
     end)
+end)
+
+-- Being player sprinting
+local function startSprinting()
+    remotes.MovementTypeChanged:FireServer("Sprinting", true)
+    sprinting = true
+end
+
+-- End player sprinting
+local function stopSprinting()
+    remotes.MovementTypeChanged:FireServer("Sprinting", false)
+    sprinting = false
+end
+
+-- Begin player crouching
+local function startCrouching()
+    remotes.MovementTypeChanged:FireServer("Crouching", true)
+    crouching = true
+end
+
+-- End player crouching
+local function stopCrouching()
+    remotes.MovementTypeChanged:FireServer("Crouching", false)
+    crouching = false
+end
+
+-- Connect movement inputs to functions
+local function handleInputs(key, beganOrEnded)
+    if beganOrEnded == "Began" then
+        if key.KeyCode == Enum.KeyCode.LeftShift then
+            startSprinting()
+        end
+    
+        if key.KeyCode == Enum.KeyCode.C and sprinting == false then
+            startCrouching()
+        end
+    end
+
+    if beganOrEnded == "Ended" then
+        if key.KeyCode == Enum.KeyCode.LeftShift then
+            stopSprinting()
+        end
+    
+        if key.KeyCode == Enum.KeyCode.C and sprinting == false then
+            stopCrouching()
+        end
+    end
+end
+
+-- Connect to userinputservice
+userInputService.InputBegan:Connect(function(key)
+    handleInputs(key, "Began")
+end)
+
+userInputService.InputEnded:Connect(function(key)
+    handleInputs(key, "Ended")
+end)
+
+-- Detect when stamina changes
+playerValues.Stamina:GetPropertyChangedSignal("Value"):Connect(function()
+    if playerValues.Stamina.Value <= 0 then
+        stopSprinting()
+    end
+
+    player.PlayerGui.MenuClient.StaminaBackgroundBar.StaminaBar.Size = UDim2.new(playerValues.Stamina.Value/1000, 0, 1, 0)
 end)
