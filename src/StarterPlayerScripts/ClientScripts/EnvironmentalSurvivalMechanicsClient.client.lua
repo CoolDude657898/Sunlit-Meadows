@@ -109,6 +109,6 @@ local function updateHealthGui(value)
     player.PlayerGui.MenuClient.HealthBackgroundBar.HealthBar.BackgroundColor3 = color
 end
 
-player.Character.Humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+player.Character:WaitForChild("Humanoid"):GetPropertyChangedSignal("Health"):Connect(function()
     updateHealthGui(player.Character.Humanoid.Health)
 end)
