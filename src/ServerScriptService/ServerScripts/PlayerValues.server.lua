@@ -22,6 +22,7 @@ local function createPlayerValues(playerToCreateValuesFor)
     local oxygenMaximum = 1000
 
     oxygen:GetPropertyChangedSignal("Value"):Connect(function()
+        print("functional")
         if oxygen.Value < oxygenMinimum then
             oxygen.Value = oxygenMinimum
         elseif oxygen.Value > oxygenMaximum then
