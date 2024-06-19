@@ -16,6 +16,19 @@ local function createPlayerValues(playerToCreateValuesFor)
     stamina.Name = "Stamina"
     stamina.Parent = playerValues
     stamina.Value = 1000
+
+    -- Make sure values cant exceed set values
+    local oxygenMinimum = 0
+    local oxygenMaximum = 1000
+
+    oxygen:GetPropertyChangedSignal("Value"):Connect(function()
+        if oxygen.Value < oxygenMinimum then
+            oxygen.Value = oxygenMinimum
+        elseif oxygen.Value > oxygenMaximum then
+            oxygen.Value = oxygenMaximum
+        end
+    end)
+
 end
 
 -- Connect to player added function

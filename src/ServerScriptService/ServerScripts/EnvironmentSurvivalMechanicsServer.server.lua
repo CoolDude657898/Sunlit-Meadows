@@ -31,7 +31,7 @@ end
 -- Detects when player leaves or enters water and subsequently subtracts or adds oxygen
 remotes.UnderwaterChanged.OnServerEvent:Connect(function(player, isPlayerUnderwater)
     local oxygenValue = player.PlayerValues.Oxygen
-
+    
     if isPlayerUnderwater == true then
         isUnderwater = true
         loseOxygen(player, oxygenValue)
