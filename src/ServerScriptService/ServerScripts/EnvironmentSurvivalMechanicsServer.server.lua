@@ -3,41 +3,25 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Variables
 local remotes = replicatedStorage.Remotes
-local isUnderwater = false
 local sprinting = false
-local crouching = false
-
--- Lose Oxygen Loop
-local function loseOxygen(player, oxygenValue)
-    while isUnderwater and oxygenValue.Value > 0 do
-        task.wait(0.1)
-        oxygenValue.Value -= 10
-    end
-
-    while isUnderwater and oxygenValue.Value == 0 and player.Character.Humanoid.Health > 0 do
-        task.wait(0.5)
-        player.Character.Humanoid.Health -= 30
-    end
-end
-
--- Gain Oxygen Loop
-local function gainOxygen(oxygenValue)
-    while not isUnderwater and oxygenValue.Value < 1000 do
-        task.wait(0.1)
-        oxygenValue.Value += 10
-    end
-end
 
 -- Detects when player leaves or enters water and subsequently subtracts or adds oxygen
-remotes.UnderwaterChanged.OnServerEvent:Connect(function(player, isPlayerUnderwater)
-    local oxygenValue = player.PlayerValues.Oxygen
-    
-    if isPlayerUnderwater == true then
-        isUnderwater = true
-        loseOxygen(player, oxygenValue)
-    elseif isPlayerUnderwater == false then
-        isUnderwater = false
-        gainOxygen(oxygenValue)
+remotes.OxygenChanged.OnServerEvent:Connect(function(player, changeVariable)
+    if changeVariable == "Lose Oxygen" then
+        player.PlayerValues.Oxygen.Value -= 10
+    elseif changeVariable == "Gain Oxygen" then
+        player.PlayerValues.Oxygen.Value += 10
+    elseif changeVariable == "Lose Health" then
+        player.Character.Humanoid.Health -= 30
+    end
+end)
+
+-- Detects when player leaves or enters water and changes variable in playerValues
+remotes.UnderwaterChanged.OnServerEvent:Connect(function(player, trueOrFalse)
+    if trueOrFalse == true then
+        player.PlayerValues.IsUnderwater.Value = true
+    elseif trueOrFalse == false then
+        player.PlayerValues.IsUnderwater.Value = false
     end
 end)
 
@@ -73,13 +57,11 @@ end
 
 -- Begin player crouching
 local function startCrouching(player)
-    crouching = true
     player.Character.Humanoid.WalkSpeed = 4
 end
 
 -- End player crouching
 local function stopCrouching(player)
-    crouching = false
     player.Character.Humanoid.WalkSpeed = 9
 end
 

@@ -72,12 +72,31 @@ runService.Heartbeat:Connect(function()
         player.PlayerGui.MenuClient.OxygenFrame.Visible = true
         remotes.UnderwaterChanged:FireServer(true)
     elseif not isInWater and isUnderwater == true then
-        isUnderwater = false
         remotes.UnderwaterChanged:FireServer(false)
+        isUnderwater = false
         while playerValues.Oxygen.Value < 1000 do
             task.wait()
         end
         player.PlayerGui.MenuClient.OxygenFrame.Visible = false 
+    end
+end)
+
+-- Detects when isUnderwater value changes
+playerValues.IsUnderwater:GetPropertyChangedSignal("Value"):Connect(function()
+    -- Constantly fire remote to either lose or gain oxygen
+    while playerValues.IsUnderwater.Value == true do
+        task.wait(0.1)
+        if playerValues.Oxygen.Value == 0 then
+            task.wait(0.4)
+            remotes.OxygenChanged:FireServer("Lose Health")
+        else
+            remotes.OxygenChanged:FireServer("Lose Oxygen")
+        end
+    end
+
+    while playerValues.IsUnderwater.Value == false and playerValues.Oxygen.Value < 1000 do
+        task.wait(0.1)
+        remotes.OxygenChanged:FireServer("Gain Oxygen")
     end
 end)
 

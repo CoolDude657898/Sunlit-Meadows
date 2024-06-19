@@ -22,7 +22,6 @@ local function createPlayerValues(playerToCreateValuesFor)
     local oxygenMaximum = 1000
 
     oxygen:GetPropertyChangedSignal("Value"):Connect(function()
-        print("functional")
         if oxygen.Value < oxygenMinimum then
             oxygen.Value = oxygenMinimum
         elseif oxygen.Value > oxygenMaximum then
@@ -30,6 +29,10 @@ local function createPlayerValues(playerToCreateValuesFor)
         end
     end)
 
+    local isUnderwater = Instance.new("BoolValue")
+    isUnderwater.Parent = playerValues
+    isUnderwater.Name = "IsUnderwater"
+    isUnderwater.Value = false
 end
 
 -- Connect to player added function
