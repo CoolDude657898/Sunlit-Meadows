@@ -35,12 +35,12 @@ remotes.MovementTypeChanged.OnServerEvent:Connect(function(player, movementType)
             player.PlayerValues.Stamina.Value = 0
             player.Character.Humanoid.WalkSpeed = 9
         end
-        player.PlayerValues.Stamina.Value -= 0.714285714286
+        player.PlayerValues.Stamina.Value -= 1
     elseif movementType == "Walking" then
         if player.Character.Humanoid.WalkSpeed ~= 9 then
             player.Character.Humanoid.WalkSpeed = 9
         end
-        player.PlayerValues.Stamina.Value += 1.6666666667
+        player.PlayerValues.Stamina.Value += 1
     elseif movementType == "Crouching" then
         if player.Character.Humanoid.WalkSpeed ~= 4 then
             player.Character.Humanoid.WalkSpeed = 4
@@ -49,7 +49,7 @@ remotes.MovementTypeChanged.OnServerEvent:Connect(function(player, movementType)
     
     if movementType == "Crouching" or movementType == "Walking" then
         if player.PlayerValues.Stamina.Value < 1000 then
-            player.PlayerValues.Stamina.Value += 1.6666666667
+            player.PlayerValues.Stamina.Value += 1
         end
 
         if player.PlayerValues.Stamina.Value > 1000 then
