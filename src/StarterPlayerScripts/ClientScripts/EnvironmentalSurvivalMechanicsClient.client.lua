@@ -3,14 +3,15 @@ local players = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local runService = game:GetService("RunService")
 local userInputService = game:GetService("UserInputService")
+local tweenService = game:GetService("TweenService")
 
 -- Variables
 local remotes = replicatedStorage.Remotes
 local player = players.LocalPlayer
 local playerValues = player:WaitForChild("PlayerValues")
-local isUnderwater = false
-local sprinting = false
-local crouching = false
+local sprintConnection = nil
+local crouchConnection = nil
+local walkConnection = nil
 
 -- Waits for character to add
 if not player.Character then
@@ -57,7 +58,7 @@ end
 
 -- Get player position
 local function getPlayerHeadPosition(playerToGetPositionOf)
-    local playerHeadPosition = playerToGetPositionOf.Character.Head.Position
+    local playerHeadPosition = playerToGetPositionOf.Character:WaitForChild("Head").Position
 
     return playerHeadPosition
 end
@@ -67,16 +68,16 @@ runService.Heartbeat:Connect(function()
     local playerHeadPositon = game.Workspace.Terrain:WorldToCell(getPlayerHeadPosition(player))
     local isInWater = game.Workspace.Terrain:GetWaterCell(playerHeadPositon.X, playerHeadPositon.Y + 0.5, playerHeadPositon.Z)
     
-    if isInWater and isUnderwater == false then
-        isUnderwater = true
+    if isInWater == true then
         player.PlayerGui.MenuClient.OxygenFrame.Visible = true
         remotes.UnderwaterChanged:FireServer(true)
-    elseif not isInWater and isUnderwater == true then
+    elseif isInWater == false then
         remotes.UnderwaterChanged:FireServer(false)
-        isUnderwater = false
+
         while playerValues.Oxygen.Value < 1000 do
             task.wait()
         end
+        
         player.PlayerGui.MenuClient.OxygenFrame.Visible = false 
     end
 end)
@@ -141,67 +142,66 @@ player.CharacterAdded:Connect(function()
     end)
 end)
 
--- Being player sprinting
-local function startSprinting()
-    remotes.MovementTypeChanged:FireServer("Sprinting", true)
-    sprinting = true
-end
-
--- End player sprinting
-local function stopSprinting()
-    remotes.MovementTypeChanged:FireServer("Sprinting", false)
-    sprinting = false
-end
-
--- Begin player crouching
-local function startCrouching()
-    remotes.MovementTypeChanged:FireServer("Crouching", true)
-    crouching = true
-end
-
--- End player crouching
-local function stopCrouching()
-    remotes.MovementTypeChanged:FireServer("Crouching", false)
-    crouching = false
-end
-
--- Connect movement inputs to functions
-local function handleInputs(key, beganOrEnded)
-    if beganOrEnded == "Began" then
-        if key.KeyCode == Enum.KeyCode.LeftShift then
-            startSprinting()
-        end
-    
-        if key.KeyCode == Enum.KeyCode.C and sprinting == false then
-            startCrouching()
-        end
-    end
-
-    if beganOrEnded == "Ended" then
-        if key.KeyCode == Enum.KeyCode.LeftShift then
-            stopSprinting()
-        end
-    
-        if key.KeyCode == Enum.KeyCode.C and sprinting == false then
-            stopCrouching()
-        end
-    end
-end
-
--- Connect to userinputservice
-userInputService.InputBegan:Connect(function(key)
-    handleInputs(key, "Began")
-end)
-
-userInputService.InputEnded:Connect(function(key)
-    handleInputs(key, "Ended")
-end)
-
--- Detect when stamina changes
+-- Detect when stamina value changes to update GUI
 playerValues.Stamina:GetPropertyChangedSignal("Value"):Connect(function()
-    if playerValues.Stamina.Value <= 0 then
-        stopSprinting()
-    end
-
     player.PlayerGui.MenuClient.StaminaBackgroundBar.StaminaBar.Size = UDim2.new(playerValues.Stamina.Value/1000, 0, 1, 0)
+
+    if playerValues.Stamina.Value <= 200 then
+        player.PlayerGui.MenuClient.StaminaBackgroundBar.StaminaBar.BackgroundColor3 = Color3.fromRGB(155, 80, 80)
+    end
 end)
+
+userInputService.InputBegan:Connect(function(key, processed)
+    if not processed then
+        if key.KeyCode == Enum.KeyCode.LeftShift and playerValues.Stamina.Value > 200 then
+            sprintConnection = runService.Heartbeat:Connect(function()
+                 if userInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                    if walkConnection then
+                        walkConnection:Disconnect()
+                        walkConnection = nil
+                    end
+                    remotes.MovementTypeChanged:FireServer("Sprinting")
+                 end
+             end)
+         end
+
+         if key.KeyCode == Enum.KeyCode.C or key.KeyCode == Enum.KeyCode.LeftControl then
+            crouchConnection = runService.Heartbeat:Connect(function()
+                if userInputService:IsKeyDown(Enum.KeyCode.LeftControl) or userInputService:IsKeyDown(Enum.KeyCode.C) then
+                    if walkConnection then
+                        walkConnection:Disconnect()
+                        walkConnection = nil
+                    end
+                    remotes.MovementTypeChanged:FireServer("Crouching")
+                end
+            end)
+         end
+    end
+end)
+
+userInputService.InputEnded:Connect(function(key, processed)
+    if not processed then
+        if key.KeyCode == Enum.KeyCode.LeftShift and sprintConnection then
+            sprintConnection:Disconnect()
+            sprintConnection = nil
+
+            walkConnection = runService.Heartbeat:Connect(function()
+                remotes.MovementTypeChanged:FireServer("Walking")
+            end)
+        end
+
+        if key.KeyCode == Enum.KeyCode.LeftControl or key.KeyCode == Enum.KeyCode.C and crouchConnection then
+            crouchConnection:Disconnect()
+            crouchConnection = nil
+
+            walkConnection = runService.Heartbeat:Connect(function()
+                remotes.MovementTypeChanged:FireServer("Walking")
+            end)
+        end
+    end
+end)
+
+while task.wait() do
+    print("Sprint ", sprintConnection)
+    print("Walk ", walkConnection)
+end

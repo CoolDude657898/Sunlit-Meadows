@@ -32,7 +32,7 @@ end
 
 -- Function to get player's position
 local function getPlayerPosition(playerToGetPositionOf)
-    local playerPosition = playerToGetPositionOf.Character.HumanoidRootPart.Position
+    local playerPosition = playerToGetPositionOf.Character:WaitForChild("HumanoidRootPart").Position
 
     return playerPosition
 end

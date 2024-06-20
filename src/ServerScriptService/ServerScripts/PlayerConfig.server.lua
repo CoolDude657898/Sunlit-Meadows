@@ -2,10 +2,10 @@
 local players = game:GetService("Players")
 
 -- Create player values folder
-local function createPlayerValues(playerToCreateValuesFor)
+local function createPlayerValues(player)
     local playerValues = Instance.new("Folder")
     playerValues.Name = "PlayerValues"
-    playerValues.Parent = playerToCreateValuesFor
+    playerValues.Parent = player
 
     local oxygen = Instance.new("IntValue")
     oxygen.Name = "Oxygen"
@@ -33,6 +33,13 @@ local function createPlayerValues(playerToCreateValuesFor)
     isUnderwater.Parent = playerValues
     isUnderwater.Name = "IsUnderwater"
     isUnderwater.Value = false
+
+    -- Makes sure player walkspeed is set correctly
+    if not player.Character then
+        player.CharacterAdded:Wait()
+    end
+
+    player.Character.Humanoid.WalkSpeed = 9
 end
 
 -- Connect to player added function
