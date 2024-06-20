@@ -159,7 +159,7 @@ userInputService.InputBegan:Connect(function(key, processed)
         if key.KeyCode == Enum.KeyCode.LeftShift and playerValues.Stamina.Value > 200 then
             sprinting = true
             while sprinting do
-                task.wait()
+                task.wait(0.01)
                 remotes.MovementTypeChanged:FireServer("Sprinting")
             end
         end
@@ -167,7 +167,7 @@ userInputService.InputBegan:Connect(function(key, processed)
         if key.KeyCode == Enum.KeyCode.C or key.KeyCode == Enum.KeyCode.LeftControl then
         crouching = true
             while crouching do
-             task.wait()
+             task.wait(0.01)
                 remotes.MovementTypeChanged:FireServer("Crouching")
             end
         end
@@ -179,7 +179,7 @@ userInputService.InputEnded:Connect(function(key, processed)
         if key.KeyCode == Enum.KeyCode.LeftShift and sprinting then
             sprinting = false
             while not sprinting and not crouching do
-                task.wait()
+                task.wait(0.01)
                 remotes.MovementTypeChanged:FireServer("Walking")
             end
         end
@@ -187,7 +187,7 @@ userInputService.InputEnded:Connect(function(key, processed)
         if key.KeyCode == Enum.KeyCode.LeftControl or key.KeyCode == Enum.KeyCode.C and crouching then
             crouching = false
             while not crouching and not sprinting do
-                task.wait()
+                task.wait(0.01)
                 remotes.MovementTypeChanged:FireServer("Walking")
             end
         end
