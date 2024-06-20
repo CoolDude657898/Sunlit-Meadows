@@ -12,11 +12,6 @@ local function createPlayerValues(player)
     oxygen.Parent = playerValues
     oxygen.Value = 1000
 
-    local stamina = Instance.new("IntValue")
-    stamina.Name = "Stamina"
-    stamina.Parent = playerValues
-    stamina.Value = 1000
-
     -- Make sure values cant exceed set values
     local oxygenMinimum = 0
     local oxygenMaximum = 1000
