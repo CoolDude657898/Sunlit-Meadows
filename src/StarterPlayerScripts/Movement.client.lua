@@ -2,10 +2,11 @@
 local userInputService = game:GetService("UserInputService")
 local players = game:GetService("Players")
 local runService = game:GetService("RunService")
+local tweenService = game:GetService("TweenService")
 
 -- Variables
 local player = players.LocalPlayer
-local staminaGui = player.PlayerGui:WaitForChild("MenuClient"):WaitForChild("StaminaBackgroundBar")
+local playerGui = player.PlayerGui
 local sprinting = false
 local crouching = false
 local maxStamina = 1000
@@ -14,16 +15,23 @@ local staminaDepletionRate = 1
 local staminaReplenishRate = 2
 local jumpDebounce = false
 
+-- Wait for player character to add
+if not player.Character then
+    player.CharacterAdded:Wait()
+end
+
 -- Input began connections for sprinting and crouching
 userInputService.InputBegan:Connect(function(key)
     if key.KeyCode == Enum.KeyCode.LeftShift and not crouching and currentStamina > 200 then
         sprinting = true
-        player.Character.Humanoid.WalkSpeed = 18
+        local startSprintingWalkSpeedTween = tweenService:Create(player.Character.Humanoid, TweenInfo.new(0.4, Enum.EasingStyle.Linear), {WalkSpeed = 18})
+        startSprintingWalkSpeedTween:Play()
     end
 
     if key.KeyCode == Enum.KeyCode.C or key.KeyCode == Enum.KeyCode.LeftControl and not sprinting then
         crouching = true
-        player.Character.Humanoid.WalkSpeed = 4
+        local startCrouchingWalkSpeedTween = tweenService:Create(player.Character.Humanoid, TweenInfo.new(0.3, Enum.EasingStyle.Linear), {WalkSpeed = 4})
+        startCrouchingWalkSpeedTween:Play()
     end
 end)
 
@@ -31,12 +39,14 @@ end)
 userInputService.InputEnded:Connect(function(key)
     if key.KeyCode == Enum.KeyCode.LeftShift and not crouching then
         sprinting = false
-        player.Character.Humanoid.WalkSpeed = 9
+        local endSprintingWalkSpeedTween = tweenService:Create(player.Character.Humanoid, TweenInfo.new(0.4, Enum.EasingStyle.Linear), {WalkSpeed = 9})
+        endSprintingWalkSpeedTween:Play()
     end
 
     if key.KeyCode == Enum.KeyCode.C or key.KeyCode == Enum.KeyCode.LeftControl and not sprinting then
         crouching = false
-        player.Character.Humanoid.WalkSpeed = 9
+        local endCrouchingWalkSpeedTween = tweenService:Create(player.Character.Humanoid, TweenInfo.new(0.3, Enum.EasingStyle.Linear), {WalkSpeed = 9})
+    endCrouchingWalkSpeedTween:Play()
     end
 end)
 
@@ -46,12 +56,15 @@ userInputService.JumpRequest:Connect(function()
     if jumpDebounce == false then
         jumpDebounce = true
         if currentStamina > 200 then
-            print("skibidi")
-            currentStamina -= 200
+            local staminaAfterJump = currentStamina - 200
+            while currentStamina > staminaAfterJump do
+                task.wait()
+                currentStamina -= 5
+            end
         elseif currentStamina < 200 then
             player.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
         end
-        task.wait(2)
+        task.wait(0.3)
         jumpDebounce = false
     elseif jumpDebounce == true then
         player.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
@@ -60,7 +73,7 @@ end)
 
 -- Loop to increase and decrease stamina
 runService.RenderStepped:Connect(function(deltaTime)
-    if sprinting and currentStamina > 0 then
+    if sprinting and currentStamina > 0 and player.Character.Humanoid.MoveDirection.Magnitude > 0 then
         currentStamina = math.max(0, currentStamina - staminaDepletionRate * deltaTime * 100)
     elseif not sprinting and currentStamina < maxStamina then
         if player.Character.Humanoid.MoveDirection.Magnitude > 0 then
@@ -70,20 +83,26 @@ runService.RenderStepped:Connect(function(deltaTime)
         end
     end
 
-    staminaGui.StaminaBar.Size = UDim2.new(currentStamina/1000, 0, 1, 0)
+    playerGui:WaitForChild("MenuClient").StaminaBackgroundBar.StaminaBar.Size = UDim2.new(currentStamina/1000, 0, 1, 0)
 
     if currentStamina <= 0 then
         sprinting = false
-        player.Character.Humanoid.WalkSpeed = 9
+        local endSprintingWalkSpeedTween = tweenService:Create(player.Character.Humanoid, TweenInfo.new(0.4, Enum.EasingStyle.Linear), {WalkSpeed = 9})
+        endSprintingWalkSpeedTween:Play()
     end
 
     if currentStamina < 200 then
-        staminaGui.StaminaBar.BackgroundColor3 = Color3.fromRGB(255,70,70)
+        playerGui:WaitForChild("MenuClient").StaminaBackgroundBar.StaminaBar.BackgroundColor3 = Color3.fromRGB(255,70,70)
     end
 
     if currentStamina > 200 then
-        staminaGui.StaminaBar.BackgroundColor3 = Color3.fromRGB(255, 217, 0)
+        playerGui:WaitForChild("MenuClient").StaminaBackgroundBar.StaminaBar.BackgroundColor3 = Color3.fromRGB(255, 217, 0)
     end
 
     task.wait()
+end)
+
+-- Reset player speed on death
+player.CharacterAdded:Connect(function()
+    player.Character.Humanoid.WalkSpeed = 9
 end)
