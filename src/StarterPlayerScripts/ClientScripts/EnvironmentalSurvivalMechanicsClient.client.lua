@@ -193,8 +193,3 @@ userInputService.InputEnded:Connect(function(key, processed)
         end
     end
 end)
-
-while task.wait() do
-    print("Sprint ", sprinting)
-    print("Crouch", crouching)
-end
