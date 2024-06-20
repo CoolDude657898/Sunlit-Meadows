@@ -28,12 +28,7 @@ local function createPlayerValues(player)
     isUnderwater.Parent = playerValues
     isUnderwater.Name = "IsUnderwater"
     isUnderwater.Value = false
-
-    local stamina = Instance.new("IntValue")
-    stamina.Parent = playerValues
-    stamina.Name = "Stamina"
-    stamina.Value = 1000
-
+    
     -- Makes sure player walkspeed is set correctly
     if not player.Character then
         player.CharacterAdded:Wait()
