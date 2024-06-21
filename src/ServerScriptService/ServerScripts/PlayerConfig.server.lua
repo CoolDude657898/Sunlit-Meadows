@@ -35,6 +35,17 @@ local function createPlayerValues(player)
     end
 
     player.Character.Humanoid.WalkSpeed = 9
+
+    -- Creates hunger and thirst values
+    local hunger = Instance.new("IntValue")
+    hunger.Name = "Hunger"
+    hunger.Parent = playerValues
+    hunger.Value = 100
+
+    local thirst = Instance.new("IntValue")
+    thirst.Name = "Thirst"
+    thirst.Parent = playerValues
+    thirst.Value = 100
 end
 
 -- Connect to player added function
