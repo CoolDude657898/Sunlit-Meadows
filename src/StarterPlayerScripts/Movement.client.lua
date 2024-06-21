@@ -24,7 +24,7 @@ end
 userInputService.InputBegan:Connect(function(key)
     if key.KeyCode == Enum.KeyCode.LeftShift and not crouching and currentStamina > 200 then
         sprinting = true
-        local startSprintingWalkSpeedTween = tweenService:Create(player.Character.Humanoid, TweenInfo.new(0.4, Enum.EasingStyle.Linear), {WalkSpeed = 18})
+        local startSprintingWalkSpeedTween = tweenService:Create(player.Character.Humanoid, TweenInfo.new(0.4, Enum.EasingStyle.Linear), {WalkSpeed = 16.8})
         startSprintingWalkSpeedTween:Play()
     end
 
@@ -59,12 +59,12 @@ userInputService.JumpRequest:Connect(function()
             local staminaAfterJump = currentStamina - 200
             while currentStamina > staminaAfterJump do
                 task.wait()
-                currentStamina -= 5
+                currentStamina -= 10
             end
         elseif currentStamina < 200 then
             player.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
         end
-        task.wait(0.3)
+        task.wait(0.5)
         jumpDebounce = false
     elseif jumpDebounce == true then
         player.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
@@ -73,30 +73,41 @@ end)
 
 -- Loop to increase and decrease stamina
 runService.RenderStepped:Connect(function(deltaTime)
-    if sprinting and currentStamina > 0 and player.Character.Humanoid.MoveDirection.Magnitude > 0 then
-        currentStamina = math.max(0, currentStamina - staminaDepletionRate * deltaTime * 100)
-    elseif not sprinting and currentStamina < maxStamina then
-        if player.Character.Humanoid.MoveDirection.Magnitude > 0 then
-            currentStamina = math.min(maxStamina, currentStamina + (staminaReplenishRate*0.8) * deltaTime * 100)
-        else
-            currentStamina = math.min(maxStamina, currentStamina + staminaReplenishRate * deltaTime * 100)
+    if player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Swimming then
+        currentStamina = currentStamina
+        if player.Character.Humanoid.WalkSpeed ~= 16 then
+            player.Character.Humanoid.WalkSpeed = 16
         end
-    end
+    else
+        if not sprinting then
+            player.Character.Humanoid.WalkSpeed = 9
+        end
 
-    playerGui:WaitForChild("MenuClient").StaminaBackgroundBar.StaminaBar.Size = UDim2.new(currentStamina/1000, 0, 1, 0)
-
-    if currentStamina <= 0 then
-        sprinting = false
-        local endSprintingWalkSpeedTween = tweenService:Create(player.Character.Humanoid, TweenInfo.new(0.4, Enum.EasingStyle.Linear), {WalkSpeed = 9})
-        endSprintingWalkSpeedTween:Play()
-    end
-
-    if currentStamina < 200 then
-        playerGui:WaitForChild("MenuClient").StaminaBackgroundBar.StaminaBar.BackgroundColor3 = Color3.fromRGB(255,70,70)
-    end
-
-    if currentStamina > 200 then
-        playerGui:WaitForChild("MenuClient").StaminaBackgroundBar.StaminaBar.BackgroundColor3 = Color3.fromRGB(255, 217, 0)
+        if sprinting and currentStamina > 0 and player.Character.Humanoid.MoveDirection.Magnitude > 0 then
+            currentStamina = math.max(0, currentStamina - staminaDepletionRate * deltaTime * 100)
+        elseif not sprinting and currentStamina < maxStamina then
+            if player.Character.Humanoid.MoveDirection.Magnitude > 0 then
+                currentStamina = math.min(maxStamina, currentStamina + (staminaReplenishRate*0.8) * deltaTime * 100)
+            else
+                currentStamina = math.min(maxStamina, currentStamina + staminaReplenishRate * deltaTime * 100)
+            end
+        end
+    
+        playerGui:WaitForChild("MenuClient").StaminaBackgroundBar.StaminaBar.Size = UDim2.new(currentStamina/1000, 0, 1, 0)
+    
+        if currentStamina <= 0 then
+            sprinting = false
+            local endSprintingWalkSpeedTween = tweenService:Create(player.Character.Humanoid, TweenInfo.new(0.4, Enum.EasingStyle.Linear), {WalkSpeed = 9})
+            endSprintingWalkSpeedTween:Play()
+        end
+    
+        if currentStamina < 200 then
+            playerGui:WaitForChild("MenuClient").StaminaBackgroundBar.StaminaBar.BackgroundColor3 = Color3.fromRGB(255,70,70)
+        end
+    
+        if currentStamina > 200 then
+            playerGui:WaitForChild("MenuClient").StaminaBackgroundBar.StaminaBar.BackgroundColor3 = Color3.fromRGB(255, 217, 0)
+        end
     end
 
     task.wait()
