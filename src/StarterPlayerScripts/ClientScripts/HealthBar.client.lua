@@ -15,9 +15,9 @@ end
 
 -- Color sequence
 local healthColorSequence = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(160,0,0)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(218, 167, 59)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(50,170,17)),
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(109, 55, 55)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(128, 106, 60)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(53, 94, 42)),
 }
 
 -- Get player health
